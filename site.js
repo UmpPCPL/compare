@@ -2,6 +2,9 @@ L.Control.Attribution.prototype.options.prefix = '';
 
 // Defaults.
 var compareUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+var compareUrl1 = 'http://mapa.cloudapp.net/ump_tiles/{z}/{x}/{y}.png';
+var compareUrl2 = 'http://tiles.ump.waw.pl/ump_tiles/{z}/{x}/{y}.png';
+
 var googleMapType = 'ROADMAP';
 
 // Parse query options.
@@ -19,10 +22,10 @@ if (search.length) {
 
 // Set up maps.
 var compareLayer = new L.TileLayer(
-      compareUrl,
+      compareUrl1,
       {maxZoom: 19, subdomains: 'abc', attribution: 'Map data &copy; 2011 OpenStreetMap contributors.'}),
-    omap = new L.Map('osm').addLayer(compareLayer),
-    lat = 30, lng = -96, z = 4;
+    omap = new L.Map('osm1').addLayer(compareLayer),
+    lat = 52, lng = 21, z = 9;
 
 if (location.hash.match(/,/g)) {
     var pts = location.hash.slice(1).split(',');
@@ -31,7 +34,7 @@ if (location.hash.match(/,/g)) {
 
 omap.setView([lat, lng], z).addHash();
 
-var gmap = new google.maps.Map(document.getElementById('google'), {
+var gmap = new google.maps.Map(document.getElementById('osm2'), {
   center: new google.maps.LatLng(omap.getCenter().lat, omap.getCenter().lng),
   zoom: z,
   mapTypeId: google.maps.MapTypeId[googleMapType]

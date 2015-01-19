@@ -40,11 +40,11 @@ body,
   height: 100%;
   font: 15px Helvetica,Arial,sans-serif;
 }
-#osm {
+#osm1 {
   float: left;
   width: 50%;
   }
-#google {
+#osm2 {
   float: left;
   width: 50%;
   }
