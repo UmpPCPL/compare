@@ -12,8 +12,8 @@ var search = location.search.replace('?', '').replace('/', '').split('&');
 if (search.length) {
     for (var i = 0; i < search.length; i++) {
         var opt = search[i].split('=');
-        if (opt[0] == 'mapbox') {
-            compareUrl = 'http://{s}.tiles.mapbox.com/v3/' + opt[1] + '/{z}/{x}/{y}.png';
+        if (opt[0] == 'osm') {
+            compareUrl2 = compareUrl
         } else if (opt[0] == 'google') {
             googleMapType = opt[1];
         }
@@ -21,10 +21,10 @@ if (search.length) {
 }
 
 // Set up maps.
-var compareLayer = new L.TileLayer(
+var compareLayer1 = new L.TileLayer(
       compareUrl1,
-      {maxZoom: 19, subdomains: 'abc', attribution: 'Map data &copy; 2011 OpenStreetMap contributors.'}),
-    omap = new L.Map('osm1').addLayer(compareLayer),
+      {maxZoom: 19, subdomains: 'abc', attribution: 'UMPpcPL'}),
+    omap1 = new L.Map('osm1').addLayer(compareLayer1),
     lat = 52, lng = 21, z = 9;
 
 if (location.hash.match(/,/g)) {
@@ -32,34 +32,36 @@ if (location.hash.match(/,/g)) {
     location.hash = [pts[2], pts[0], pts[1]].join('/');
 }
 
-omap.setView([lat, lng], z).addHash();
+omap1.setView([lat, lng], z).addHash();
 
-var gmap = new google.maps.Map(document.getElementById('osm2'), {
-  center: new google.maps.LatLng(omap.getCenter().lat, omap.getCenter().lng),
-  zoom: z,
-  mapTypeId: google.maps.MapTypeId[googleMapType]
-});
+var compareLayer2 = new L.TileLayer(
+      compareUrl2,
+      {maxZoom: 19, subdomains: 'abc', attribution: 'UMPpcPL'}),
+omap2 = new L.Map('osm2').addLayer(compareLayer2)
+omap2.setView([lat, lng], z).addHash();
+
 
 var omapLock = 0, gmapLock = 0;
+
 var omapMove = function(e) {
   if (omapLock > Date.now()) return;
   gmapLock = Date.now() + 500;
-  var c = omap.getCenter();
-  var z = omap.getZoom();
-  gmap.panTo(new google.maps.LatLng(c.lat, c.lng));
-  gmap.setZoom(z);
+  var c = omap1.getCenter();
+  var z = omap1.getZoom();
+  omap2.setView(c, z);
 };
 
-var gmapMove = function() {
+var omapMove2 = function(e) {
   if (gmapLock > Date.now()) return;
-  omapLock = Date.now() + 500;
-  var c = gmap.getCenter();
-  omap.setView(new L.LatLng(c.lat(), c.lng()), gmap.getZoom());
+  gmapLock = Date.now() + 500;
+  var c = omap2.getCenter();
+  var z = omap2.getZoom();
+  omap1.setView(c, z);
 };
 
-omap.on('moveend', omapMove);
-google.maps.event.addListener(gmap, 'center_changed', gmapMove);
-google.maps.event.addListener(gmap, 'zoom_changed', gmapMove);
+
+omap1.on('moveend', omapMove);
+omap2.on('moveend', omapMove2);
 
 function geolookup(e) {
   var query = $('#search input[type=text]').val(),
@@ -78,7 +80,7 @@ function geolookup(e) {
               v.type == 'maritime'  || v.type == 'country') {
               z = 7;
             }
-            omap.setView(new L.LatLng(parseFloat(v.lat), parseFloat(v.lon)), z);
+            omap1.setView(new L.LatLng(parseFloat(v.lat), parseFloat(v.lon)), z);
           }
       }
   });
